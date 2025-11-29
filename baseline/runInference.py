@@ -1,22 +1,29 @@
 import argparse
 import json
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, List, Optional
 
 from LMStudio import LMStudioClient
 from loadConfig import load_mode_prompts
 
 import time
 
-def parse_args() -> argparse.ArgumentParser:
+def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser()
 
-    p.add_argument("--input_jsonl", type=str, required=True,
-                  help="JSONL with fields: id, prompt, (optional) mode_id")
+    p.add_argument(
+        "--input_json",
+        type=str,
+        required=True,
+        help="JSON file containing either a single object or a list of objects with fields: id, prompt, (optional) mode_id",
+    )
 
-    p.add_argument("--output_jsonl", type=str, default=None,
-                  help="Where to write baseline outputs. "
-                       "Default: ./output/<input_filename>.txt")
+    p.add_argument(
+        "--output_jsonl",
+        type=str,
+        default=None,
+        help="Where to write baseline outputs. Default: ./output/<input_filename>.txt",
+    )
 
     p.add_argument("--mode_config", type=str, default="model-config.json",
                   help="JSON config mapping mode_id -> system prompt. "
@@ -34,16 +41,31 @@ def parse_args() -> argparse.ArgumentParser:
     return p.parse_args()
 
 
+def load_prompts(input_path: Path) -> List[Dict[str, Any]]:
+    with input_path.open("r", encoding="utf-8") as infile:
+        data = json.load(infile)
+
+    if isinstance(data, dict):
+        return [data]
+
+    if isinstance(data, list):
+        if not all(isinstance(item, dict) for item in data):
+            raise ValueError("Input JSON list must contain objects.")
+        return data
+
+    raise ValueError("Input JSON must be either an object or a list of objects.")
+
+
 def main() -> None:
     start = time.time()
 
     args = parse_args()
 
     # ----------- Handle defaults for output path -----------
-    in_path = Path(args.input_jsonl)
+    in_path = Path(args.input_json)
 
     if args.output_jsonl is None:
-        # Strip .jsonl extension and create output/<file_id>.txt
+        # Strip the input extension and create output/<file_id>.txt
         file_id = in_path.stem
         output_dir = Path("./output")
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -62,15 +84,11 @@ def main() -> None:
         max_tokens=args.max_tokens,
     )
 
-    # ----------- Process input JSONL -----------
-    with in_path.open("r", encoding="utf-8") as fin, \
-         out_path.open("w", encoding="utf-8") as fout:
+    prompts = load_prompts(in_path)
 
-        for line in fin:
-            if not line.strip():
-                continue
-
-            ex = json.loads(line)
+    # ----------- Process input JSON -----------
+    with out_path.open("w", encoding="utf-8") as fout:
+        for ex in prompts:
             uid = ex.get("id")
             prompt = ex["prompt"]
             mode_id: Optional[int] = ex.get("mode_id")

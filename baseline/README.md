@@ -1,6 +1,6 @@
 # Baseline Generation Pipeline (LM Studio)
 
-This project runs a set of prompts through a local Llama-3 model served by LM Studio. The script reads a JSONL file of prompts, sends each prompt to the LM Studio API server, and writes the model outputs to a file for later analysis.
+This project runs a set of prompts through a local Llama-3 model served by LM Studio. The script reads a JSON file of prompts, sends each prompt to the LM Studio API server, and writes the model outputs to a file for later analysis.
 
 ## Prerequisites
 
@@ -23,11 +23,6 @@ python -m venv .env
 pip install -r requirements.txt
 ```
 
-If you need a minimal requirements file, create:
-
-```
-requests
-```
 
 ## Running the LM Studio Server
 
@@ -40,13 +35,16 @@ Keep LM Studio open while you run the baseline script.
 
 ## Input Format
 
-The input file must be JSONL. Each line should contain fields like:
+The input file must be JSON. Provide either a list of objects or a single object, each containing fields like:
 
 ```
-{"id": "ex_01", "prompt": "Explain RLHF.", "mode_id": 0}
+[
+  {"id": "ex_01", "prompt": "Explain RLHF.", "mode_id": 0},
+  {"id": "ex_02", "prompt": "Summarize PPO."}
+]
 ```
 
-`mode_id` is optional. If present, it is used to select a system prompt.
+`mode_id` is optional. Sample inputs are `example.json` (multi-sample) and `exampleOneLine.json` (single sample that still works because the script normalizes it into a list).
 
 ## Mode Configuration
 
@@ -61,14 +59,14 @@ Create a file named `model-config.json`:
 }
 ```
 
-If not provided, the script defaults to `model-config.json`.
+If not provided, the script defaults to the already made `model-config.json`.
 
 ## Running the Pipeline
 
 Basic usage:
 
 ```
-python run_baseline_lmstudio.py --input_jsonl data/prompts.jsonl
+python runInference.py --input_json example.json 
 ```
 
 If no output path is provided, the script writes to:
@@ -80,8 +78,8 @@ output/<input_filename>.txt
 Example with all parameters:
 
 ```
-python run_baseline_lmstudio.py ^
-  --input_jsonl data/prompts.jsonl ^
+python runInference.py ^
+  --input_json example.json ^
   --output_jsonl output/results.jsonl ^
   --mode_config model-config.json ^
   --model_name llama-3-8b-instruct ^
