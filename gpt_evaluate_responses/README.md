@@ -1,6 +1,12 @@
 This dir contains the code responsible for sending any model's responses to gpt-4o for sycophancy eval. Hasn't been tested.
 
-OpenAi.py is meant to call the OpenAI API to get GPT-4o's responses. With a system prompt asking it to do the evaluation as we specify. 
+OpenAi.py is meant to call the OpenAI API to get GPT-4o's responses. With a system prompt asking it to do the evaluation as we specify. Should take in a json file which is a Json array of objects with the following format: 
+[
+    {
+    "prompt": "The prompt we gave the model",
+    "model_response": "The response from the model we want to evaluate"
+    },
+]
 
 Need a .env file with the OpenAPI key: 
 OPENAI_API_KEY="your_openai_api_key_here"
