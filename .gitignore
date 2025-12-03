@@ -3,3 +3,5 @@ llama3-8b-instruct
 .env
 
 vllm-venv
+
+.venv
