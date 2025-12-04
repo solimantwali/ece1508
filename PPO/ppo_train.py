@@ -51,7 +51,7 @@ def main():
 
     # SFT model configuration
     base_model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
-    adapter_path = "importFiles"
+    adapter_path = "SFT_Model"
     json_path = "oem_val_sft_with_rewards.json"
 
     input_ids, attention_mask, rewards = load_dataset_with_rewards(
