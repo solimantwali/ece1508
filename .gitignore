@@ -9,3 +9,5 @@ vllm-venv
 __pycache__
 
 importFiles 
+
+**.pem

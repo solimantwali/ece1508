@@ -15,8 +15,19 @@ We have a scalar reward system that uses the difference in sycophancy between th
 
 The code expects:
 - Base model: `meta-llama/Meta-Llama-3-8B-Instruct`
-- SFT adapter: `../SFT/llama3_8b_oem_sft` (LoRA weights from SFT training)
-- Rewards file: `../oem_val_sft_with_rewards.json`
+- SFT adapter: `SFT_Model` (LoRA weights from SFT training)
+- Rewards file: `oem_val_sft_with_rewards.json`
+
+If you're on the lambdalabs instance, pip install -r requirements.txt
+Or try to run the ppo_train.py and pip install whatever it tells you to. 
+
+You may want to create a venv: 
+python -m venv .venv
+source .venv/bin/activate
+Then do your pip installs here
+
+export HF_TOKEN=your_huggingface_token_here
+
 
 ## Key Features
 
@@ -45,3 +56,8 @@ In `ppo_train.py`, you can adjust:
 - `entropy_coef`: Entropy bonus coefficient (0.01)
 - `kl_coef`: KL divergence penalty (0.0, set >0 to enable)
 - Learning rate: 1e-5 
+
+## Testing
+There is a test script: 
+python sanity_test_model_is_updating.py 
+Which runs the new models through some basic prompts. We do see that after PPO the model is changed, we haven't quantifiably measured this though to see if these changes are good. 
