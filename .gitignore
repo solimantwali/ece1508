@@ -4,4 +4,8 @@ llama3-8b-instruct
 
 vllm-venv
 
-.venv
+**.venv**
+
+__pycache__
+
+importFiles 

@@ -5,15 +5,22 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from transformers import AutoModelForCausalLM
+from peft import PeftModel
 
 
 class PolicyValueModel(nn.Module):
     """
     Wraps a causal LM and adds a scalar value head.
+    Supports loading a base model with LoRA adapters.
     """
-    def __init__(self, base_model_name: str):
+    def __init__(self, base_model_name: str, adapter_path: str = None):
         super().__init__()
         self.base = AutoModelForCausalLM.from_pretrained(base_model_name)
+        
+        # Load LoRA adapters if provided
+        if adapter_path is not None:
+            self.base = PeftModel.from_pretrained(self.base, adapter_path)
+        
         hidden_size = self.base.config.hidden_size
         self.value_head = nn.Linear(hidden_size, 1)
 

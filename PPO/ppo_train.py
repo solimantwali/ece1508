@@ -7,31 +7,32 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader, TensorDataset
 from transformers import AutoTokenizer
 
-from models import PolicyValueModel, compute_seq_logprobs
+from PolicyModel import PolicyValueModel, compute_seq_logprobs
 
 
 def load_dataset_with_rewards(json_path, tokenizer_name, max_length=512):
     """
     JSON format:
     [
-      { "prompt": "...", "response": "...", "reward": 0.7 },
+      { "sentence": "...", "model_response": "...", "reward": 0.7 },
       ...
     ]
+    
+    For RLHF/PPO, we only tokenize the responses since those are what we're optimizing.
+    The rewards are already computed based on these responses.
     """
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
 
     data = json.loads(Path(json_path).read_text(encoding="utf-8"))
 
-    prompts = [d["prompt"] for d in data]
-    responses = [d["response"] for d in data]
+    responses = [d["model_response"] for d in data]
     rewards = torch.tensor([d["reward"] for d in data], dtype=torch.float32)
 
-    # concat prompt + EOS + response
-    eos = tokenizer.eos_token or ""
-    texts = [p + eos + r for p, r in zip(prompts, responses)]
-
+    # Tokenize only the responses - these are what we're training on
     enc = tokenizer(
-        texts,
+        responses,
         padding=True,
         truncation=True,
         max_length=max_length,
@@ -47,8 +48,10 @@ def load_dataset_with_rewards(json_path, tokenizer_name, max_length=512):
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    base_model_name = "gpt2"  # replace with your SFT model
-    json_path = "rewards_dataset.json"
+    # SFT model configuration
+    base_model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
+    adapter_path = "importFiles"
+    json_path = "../oem_val_sft_with_rewards.json"
 
     input_ids, attention_mask, rewards = load_dataset_with_rewards(
         json_path,
@@ -58,9 +61,9 @@ def main():
     dataset = TensorDataset(input_ids, attention_mask, rewards)
     dataloader = DataLoader(dataset, batch_size=4, shuffle=True)
 
-    policy = PolicyValueModel(base_model_name).to(device)
+    policy = PolicyValueModel(base_model_name, adapter_path).to(device)
     # reference (KL anchor) = copy of initial policy
-    ref_policy = PolicyValueModel(base_model_name).to(device)
+    ref_policy = PolicyValueModel(base_model_name, adapter_path).to(device)
     ref_policy.load_state_dict(policy.state_dict())
     ref_policy.eval()
     for p in ref_policy.parameters():
@@ -104,7 +107,9 @@ def main():
             new_logprobs = compute_seq_logprobs(logits_new, batch_ids)
 
             # prob ratio
-            ratio = torch.exp(new_logprobs - old_logprobs)  # [B]
+            # since probabilities are logs, exp(logx - logy) = x / y = ratio
+
+            ratio = torch.exp(new_logprobs - old_logprobs) 
 
             # clipped surrogate
             unclipped = ratio * advantages

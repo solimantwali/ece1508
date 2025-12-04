@@ -1,5 +1,47 @@
-Still figuring out what PPO is and using this dir to figure things out. 
+# PPO Training for Reducing Sycophancy
 
-We have a scalar reward system that will use the difference in sycophancy between the top Reddit response and our model's response. Using GPT4o as the judge, that judge code exists in the evaluate_responses dir. 
+This directory contains the PPO (Proximal Policy Optimization) training code to reduce sycophancy in LLM outputs.
 
-We need output logits from an SFT'd LLM. 
+## Overview
+
+We have a scalar reward system that uses the difference in sycophancy between the top Reddit response and our model's response. Using GPT4o as the judge, the judge code exists in the `../judge/` directory.
+
+## Files
+
+- `PolicyModel.py`: Defines the Policy and Value heads. Supports loading LoRA adapters.
+- `ppo_train.py`: Main PPO training script.
+
+## Setup
+
+The code expects:
+- Base model: `meta-llama/Meta-Llama-3-8B-Instruct`
+- SFT adapter: `../SFT/llama3_8b_oem_sft` (LoRA weights from SFT training)
+- Rewards file: `../oem_val_sft_with_rewards.json`
+
+## Key Features
+
+1. **Response-only training**: The PPO training operates directly on the model's responses (not prompts). The rewards are already assigned to these responses, so we simply tokenize the `model_response` field and use those tokens for policy optimization.
+
+2. **LoRA support**: The PolicyValueModel can load LoRA adapters on top of the base model.
+
+3. **Value head**: A scalar value head is added to estimate the expected reward (V function).
+
+## Running PPO Training
+
+```bash
+cd /home/rohan/RLRepo/ece1508/PPO
+python ppo_train.py
+```
+
+The trained model will be saved to `ppo_tuned_model/`.
+
+## Configuration
+
+In `ppo_train.py`, you can adjust:
+- `batch_size`: Currently 4
+- `num_epochs`: Currently 3
+- `clip_range`: PPO clipping parameter (0.2)
+- `value_coef`: Value loss coefficient (0.5)
+- `entropy_coef`: Entropy bonus coefficient (0.01)
+- `kl_coef`: KL divergence penalty (0.0, set >0 to enable)
+- Learning rate: 1e-5 
