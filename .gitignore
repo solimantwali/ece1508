@@ -11,3 +11,9 @@ __pycache__
 importFiles 
 
 **.pem
+
+PPO_Trained_Weights
+
+SFT_Model
+
+llama3_8b_oem_sft
