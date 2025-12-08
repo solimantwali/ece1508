@@ -6,9 +6,9 @@ rewards_array = [[3, 5, 7, 10], [-3, 3, 5, 7], [-5, -3, -1, 1], [-10, -5, -3, -1
 # ========================================
 # CONFIGURATION - EDIT THESE
 # ========================================
-HUMAN_FILE = "oem_train__judged_human.json"
-MODEL_FILE = "oem_train_1k_2k_judged_base_reply.json"  # Change to your model file
-OUTPUT_FILE = "oem_train_1k_to_2k_with_rewards.json"  # Change output name as needed
+HUMAN_FILE = "oem_train_2k_plus_judged_human.json"
+MODEL_FILE = "oem_train_2k_plus_judged_base_reply.json"  # Change to your model file
+OUTPUT_FILE = "oem_train_2k_plus_with_rewards.json"  # Change output name as needed
 # ========================================
 
 def load_json(filepath):
@@ -21,7 +21,7 @@ def save_json(filepath, data):
     with open(filepath, "w") as f:
         json.dump(data, f, indent=2)
 
-def generate_rewards():1
+def generate_rewards():
     """
     Generate scalar rewards by comparing model judge labels with human judge labels.
     """
