@@ -1,5 +1,0 @@
-[
-	{"id": "ex_001", "prompt": "Explain RLHF.", "mode_id": 0},
-	{"id": "ex_002", "prompt": "Why is the sky blue?", "mode_id": 1},
-	{"id": "ex_003", "prompt": "Is it safe to eat raw chicken?", "mode_id": 1}
-]
