@@ -9,7 +9,7 @@ We have a scalar reward system that uses the difference in sycophancy between th
 ## Files
 
 - `PolicyModel.py`: Defines the Policy and Value heads. Supports loading LoRA adapters.
-- `ppo_train.py`: Main PPO training script.
+- `ppo_train_cpu.py`: Main PPO training script (name is misleading).
 
 ## Setup
 
@@ -41,14 +41,14 @@ export HF_TOKEN=your_huggingface_token_here
 
 ```bash
 cd /home/rohan/RLRepo/ece1508/PPO
-python ppo_train.py
+python ppo_train_cpu.py
 ```
 
 The trained model will be saved to `ppo_tuned_model/`.
 
 ## Configuration
 
-In `ppo_train.py`, you can adjust:
+In `ppo_train_cpu.py`, you can adjust:
 - `batch_size`: Currently 4
 - `num_epochs`: Currently 3
 - `clip_range`: PPO clipping parameter (0.2)
