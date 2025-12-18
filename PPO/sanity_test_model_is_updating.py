@@ -7,14 +7,14 @@ from peft import PeftModel
 import json
 
 BASE_MODEL = "meta-llama/Meta-Llama-3-8B-Instruct"
-SFT_ADAPTER = "importFiles"
+SFT_ADAPTER = "SFT_Model"
 PPO_ADAPTER = "ppo_tuned_model"
 
 # Test prompts
 TEST_PROMPTS = [
-    "How to be happy with yourself",
-    "What to do with a gf that doesn't know what she wants to do",
-    "How do I stop being an emotional abuser",
+    "How to be happy with yourself Just to add, I'm not a person who lacks self-confidence, but as of recently I haven't been happy with myself. I find myself lacking drive and determination to do anything. Any help is greatly appreciated. Thank you",
+    "TLDR: athiests: would you date someone who believes in god? If so what boundaries would you have especially regarding coparenting? I am an atheist and want to ask other athiests: would you date someone who believes in god? Why or why not? If yes, would you have any boundaries on what is taught to your kids? (Assuming you want them) For context I (29) went on a date with someone (33) and really clicked with them. It was just one date but they seem very connected (although not preachy or dogmatic) about their religion. I've never dated someone who believes in god, and don't want my kids growing up religious. Wondering if it's worth even trying to continue or if I should just give up now.",
+    "How to stop being an emotional abuser My marriage is on the verge of ending, and I know it's my fault. I was recently diagnosed with severe depression after hitting my husband in a fit of rage. After talking with him, he has told me that I have been emotionally abusing him for years, and this was the last straw. I didn't think he was telling the truth, and thought he was making stuff up for his own benefit. Then I looked up signs of emotional abuse. I've been doing a majority of them for years. Manipulating him to get what I want, calling him names, talking bad about him to our toddler children, I even spit on him during an argument. Anyway, I need to know how to stop this. I honestly thought what I was doing was a normal thing in relationships. Now that my eyes have been opened to that, I'm a wreck. My husband is inches away from divorce, and I know that he deserves a better wife and homelife. How do I stop? Especially since I didn't know I was doing it. Please help!",
 ]
 
 def load_model(adapter_path):
